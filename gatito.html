@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>gato</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --catpuccino-light: #f7ede2;
+      --catpuccino-beige: #e5d5b5;
+      --catpuccino-dark: #9b7f57;
+      --catpuccino-contrast: #5a4433;
+      --border-radius: 12px;
+      --box-shadow-soft: 0 4px 10px rgba(0,0,0,0.1);
+      --font-cute: 'Comic Sans MS', cursive, sans-serif;
+    }
+    body {
+      background-color: var(--catpuccino-light);
+      color: var(--catpuccino-contrast);
+      font-family: var(--font-cute);
+    }
+    .card {
+      background-color: var(--catpuccino-beige);
+      border: var(--catpuccino-contrast);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow-soft);
+    }
+    h1, h2, h3, h4, h5 {
+      color: var(--catpuccino-contrast);
+    }
+    .btn-custom {
+      background-color: var(--catpuccino-dark);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius);
+    }
+    .btn-custom:hover {
+      background-color: var(--catpuccino-contrast);
+    }
+    #estructura-juego {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    #lado-jugadores {
+      width: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #lado-turno {
+      width: 200px;
+      text-align: center;
+    }
+    #tablero {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 8px;
+    }
+    #tablero button {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+      border: 2px solid var(--catpuccino-dark);
+      border-radius: var(--border-radius);
+      background-color: var(--catpuccino-light);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease;
+    }
+    #tablero button:hover {
+      background-color: var(--catpuccino-beige);
+    }
+    #boton-reiniciar button {
+      background-color: var(--catpuccino-dark);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius);
+    }
+    #boton-reiniciar button:hover {
+      background-color: var(--catpuccino-contrast);
+    }
+    .modal-content {
+      background-color: var(--catpuccino-beige);
+      border-radius: var(--border-radius);
+    }
+    .btn-close {
+      color: var(--catpuccino-contrast);
+    }
+    .modal-body h1 {
+      font-size: 1.8rem;
+      color: var(--catpuccino-contrast);
+    }
+    .nombre-jugador {
+      margin: 1;
+      font-size: 1.4rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #modalGato .modal-dialog {
+      max-width: 900px; 
+    }
+
+    .image-wrapper{
+      text-align: center;
+    }
+
+    .image{
+      max-width: 300px;
+      justify-content: center;
+    }
+
+    .resize-btn{
+      padding: 15px;
+      font-size: 35px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="card shadow p-5 text-center">
+      <div class="mb-3">
+        <h2>🐾 Bienvenido a Catpuccino Tic‑Tac‑Toe ☕</h2>
+        <div id="result"></div>
+        <button type="button" class="btn btn-custom resize-btn" id="play" onclick="jugar()">! Jugar ! <span class="cat-icon">🐱</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="container mt-5">
+    <div class="image-wrapper">
+      <img src="catpuccino.jpg" class="image">
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalGato">
+    <div class="modal-dialog">
+      <div class="modal-content p-3">
+        <button type="button" class="btn-close" onclick="closeModalGato()"></button>
+        <div id="jugadores-section">
+          <h4>Ingresa los nombres</h4>
+          <form class="form" id="jorm">
+            <div class="mb-3">
+              <label for="j1" class="form-label">Jugador 1 <span class="cat-icon">😸</span></label>
+              <input type="text" class="form-control" id="j1" placeholder="Nombre del gatito 1">
+            </div>
+            <div class="mb-3">
+              <label for="j2" class="form-label">Jugador 2 <span class="cat-icon">😺</span></label>
+              <input type="text" class="form-control" id="j2" placeholder="Nombre del gatito 2">
+            </div>
+            <button type="button" class="btn btn-custom" onclick="guardar()">Comenzar <span class="coffee-icon">☕</span></button>
+          </form>
+        </div>
+        <div id="juego-section" style="display: none;">
+          <div id="estructura-juego">
+            <div id="lado-jugadores">
+              <h1 class="nombre-jugador" id="nombreJ1">Jugador 1</h1>
+              <h1>VS.</h1>
+              <h1 class="nombre-jugador" id="nombreJ2">Jugador 2</h1>
+            </div>
+            <div>
+              <div id="tablero"></div>
+            </div>
+            <div id="lado-turno">
+              <div id="turno"></div>
+              <div id="boton-reiniciar" style="margin-top: 20px;">
+                <button onclick="reiniciar()">Reiniciar <span class="cat-icon">🔄</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="abandon">
+    <div class="modal-dialog">
+      <div class="modal-content p-3">
+        <div class="modal-body text-center">
+          <h1>Estas seguro de rendirse? <span class="cat-icon">😹</span></h1>
+        </div>
+        <div class="mb-3 d-flex justify-content-around">
+          <button type="button" class="btn btn-danger" onclick="abandonar()">Si (Cobarde) <span class="cat-icon">🙀</span></button>
+          <button type="button" class="btn btn-custom" onclick="cerrarConfirm()">No (Seguir) <span class="cat-icon">😼</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="rendi">
+    <div class="modal-dialog">
+      <div class="modal-content p-3">
+        <div class="modal-body text-center">
+          <h1 id="rindio"></h1>
+        </div>
+        <div class="mb-3 d-flex justify-content-around">
+          <button type="button" class="btn btn-danger" onclick="bye()">Okay<span class="cat-icon">😿</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let play = false;
+    let current = "X";
+    let j1Name = "";
+    let j2Name = "";
+    let board = ["", "", "", "", "", "", "", "", ""];
+    const modalGato = new bootstrap.Modal(document.getElementById("modalGato"));
+    const modalAbandon = new bootstrap.Modal(document.getElementById("abandon"));
+    const modalRendir = new bootstrap.Modal(document.getElementById("rendi"));
+
+    function closeModalGato() {
+  if (play) {
+    confirmAbandon();
+  } else {
+    modalGato.hide();
+  }
+}
+
+    function jugar() {
+      modalGato.show();
+    }
+
+    function confirmAbandon() {
+      modalAbandon.show();
+    }
+
+    function abandonar() {
+      modalAbandon.hide();
+      modalGato.hide();
+
+      const quienRindio = getPlayerName(current);
+      const ganador = current === "X" ? j2Name : j1Name;
+
+      document.getElementById("rindio").innerHTML = `${ganador} ganó por abandono 😿`;
+      document.getElementById("turno").innerHTML = `<h4>${ganador} ganó por abandono 😿</h4>`;
+
+      modalRendir.show();
+      play = false;
+      document.getElementById("boton-reiniciar").style.display = "block";
+    }
+
+    function bye() {
+      modalRendir.hide();
+    }
+
+
+    function cerrarConfirm() {
+      modalAbandon.hide();
+    }
+
+    function guardar() {
+      const j1 = document.getElementById("j1").value.trim();
+      const j2 = document.getElementById("j2").value.trim();
+      if (j1 === "" || j2 === "") {
+        alert("Se necesitan 2 jugadores para jugar! 🐾");
+        return;
+      }
+      j1Name = j1;
+      j2Name = j2;
+      document.getElementById("jugadores-section").style.display = "none";
+      document.getElementById("juego-section").style.display = "block";
+      document.getElementById("nombreJ1").textContent = j1Name;
+      document.getElementById("nombreJ2").textContent = j2Name;
+      play = true;
+      current = Math.random() < 0.5 ? "X" : "O";
+      board = ["", "", "", "", "", "", "", "", ""];
+      render();
+  document.getElementById("btnRendirse").disabled = false;
+
+    }
+
+    //blenjfnoasnoanffa
+    function render() {
+      const tablero = document.getElementById("tablero");
+      tablero.innerHTML = "";
+      for (let i = 0; i < board.length; i++) {
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.textContent = board[i];
+        (function(index) {
+          btn.onclick = function() {
+            move(index);
+          };
+        })(i);
+        tablero.appendChild(btn);
+      }
+      update();
+    }
+
+    function move(index) {
+
+      if (!play) {
+        return;
+      }
+
+      if (board[index] !== "") {
+        alert("Esta ocupada esa bro !")
+        return;
+      }
+
+      board[index] = current;
+      render();
+
+      if (checkWinner()) {
+        document.getElementById("turno").innerHTML = "<h4>GANO " + getPlayerName(current) + "! 🎉</h4>";
+        play = false;
+        document.getElementById("boton-reiniciar").style.display = "block";
+        return;
+      }
+
+      let allFilled = true;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === "") {
+          allFilled = false;
+          break;
+        }
+      }
+      if (allFilled) {
+        document.getElementById("turno").innerHTML = "<h4>Empate 😐</h4>";
+        play = false;
+        document.getElementById("boton-reiniciar").style.display = "block";
+        return;
+      }
+      if (current === "X") {
+        current = "O";
+      } else {
+        current = "X";
+      }
+      update();
+    }
+    
+    function update() {
+      if (!play) {
+        return;
+      }
+      let nm = getPlayerName(current);
+      const max = 12;
+      let displayName;
+      if (nm.length > max) {
+        displayName = nm.slice(0, max - 3) + "...";
+      } else {
+        displayName = nm;
+      }
+      document.getElementById("turno").innerHTML = "<h5>Turno de: " + displayName + " (" + current + ")</h5>";
+    }
+
+    function getPlayerName(symbol) {
+      if (symbol === "X") {
+        return j1Name;
+      } else {
+        return j2Name;
+      }
+    }
+
+    function checkWinner() {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      for (let p = 0; p < winPatterns.length; p++) {
+        const a = winPatterns[p][0];
+        const b = winPatterns[p][1];
+        const c = winPatterns[p][2];
+        if (board[a] !== "" && board[a] === board[b] && board[b] === board[c]) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+
+    function reiniciar() {
+      for (let i = 0; i < board.length; i++) {
+        board[i] = "";
+      }
+      play = true;
+      current = "X";
+      document.getElementById("boton-reiniciar").style.display = "none";
+      document.getElementById("turno").innerHTML = "";
+      render();
+    }
+
+
+    function resetAll() {
+      j1Name = "";
+      j2Name = "";
+      for (let i = 0; i < board.length; i++) {
+        board[i] = "";
+      }
+      play = false;
+      current = "X";
+      document.getElementById("jugadores-section").style.display = "block";
+      document.getElementById("juego-section").style.display = "none";
+      document.getElementById("turno").innerHTML = "";
+      document.getElementById("tablero").innerHTML = "";
+      document.getElementById("boton-reiniciar").style.display = "none";
+    }
+  </script>
+</body>
+</html>
+
+
+
